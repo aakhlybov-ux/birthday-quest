@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Birthday Quest ✨</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-start: #ffb7c5; 
+            --bg-end: #ffe3e8;   
+            --text-main: #3d222a; 
+            --accent: #ff788e;      
+            --accent-dark: #e65c73; 
+            --card-bg: rgba(255, 255, 255, 0.75); 
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-glow-1 {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: #ff8fa3;
+            border-radius: 50%;
+            filter: blur(60px);
+            top: -30px;
+            left: -40px;
+            z-index: 0;
+            opacity: 0.6;
+        }
+        .bg-glow-2 {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: #ffd0da;
+            border-radius: 50%;
+            filter: blur(50px);
+            bottom: 30px;
+            right: -80px;
+            z-index: 0;
+            opacity: 0.8;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            z-index: 1;
+            display: none; 
+        }
+
+        .container.active {
+            display: block;
+            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .icon-header {
+            font-size: 50px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 10px rgba(255, 120, 142, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: #401621;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            font-size: 14.5px;
+            font-weight: 500;
+            opacity: 0.85;
+            line-height: 1.5;
+            margin: 0 0 25px 0;
+            padding: 0 10px;
+            color: #4a232c;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* Карточки теперь компактные, без подтекста */
+        .card {
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 24px rgba(200, 120, 140, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(200, 120, 140, 0.25);
+        }
+
+        .card-icon-wrapper {
+            background: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(255, 120, 142, 0.1);
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: #3d141e;
+        }
+
+        .card.selected {
+            border-color: #ff5271;
+            background: #ffffff;
+            box-shadow: 0 12px 30px rgba(255, 82, 113, 0.4);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .card.selected .card-icon-wrapper {
+            background: #ffe6eb;
+            animation: pulse 0.5s ease;
+        }
+
+        /* Контейнер для выбора даты и времени */
+        .date-time-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .picker-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 6px;
+        }
+
+        .picker-group label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #5c303c;
+            padding-left: 4px;
+        }
+
+        /* Красивые инпуты для даты и времени */
+        .input-picker {
+            width: 100%;
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 18px;
+            padding: 16px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 24px rgba(200, 120, 140, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .input-picker:focus {
+            border-color: #ff5271;
+            background: #ffffff;
+            box-shadow: 0 12px 30px rgba(255, 82, 113, 0.2);
+        }
+
+        .input-wishes {
+            width: 100%;
+            height: 120px;
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            padding: 18px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-main);
+            outline: none;
+            resize: none;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 24px rgba(200, 120, 140, 0.15);
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .input-wishes:focus {
+            border-color: #ff5271;
+            background: #ffffff;
+            box-shadow: 0 12px 30px rgba(255, 82, 113, 0.2);
+        }
+
+        .btn-container {
+            width: 100%;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-next, .btn-back {
+            font-family: inherit;
+            border: none;
+            border-radius: 20px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #ff617c, #ff8fa3);
+            color: #ffffff;
+            box-shadow: 0 6px 22px rgba(255, 97, 124, 0.45);
+            flex-grow: 2;
+        }
+
+        .btn-next:active {
+            transform: scale(0.97);
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.4);
+            color: #401621;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="container active" id="step-1">
+        <div class="icon-header">✨</div>
+        <h1>Выбор локации</h1>
+        <p>С какого места мы начнем этот день? Выбери вариант, который тебе ближе всего.</p>
+
+        <div class="cards-grid">
+            <div class="card" onclick="selectOption('place', this, 'Ресторан')">
+                <div class="card-icon-wrapper">🍝</div>
+                <div class="card-title">Ресторан</div>
+            </div>
+
+            <div class="card" onclick="selectOption('place', this, 'Пикник')">
+                <div class="card-icon-wrapper">🧺</div>
+                <div class="card-title">Пикник</div>
+            </div>
+
+            <div class="card" onclick="selectOption('place', this, 'Парк аттракционов')">
+                <div class="card-icon-wrapper">🎡</div>
+                <div class="card-title">Парк аттракционов</div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-next" onclick="changeStep(2)">Далее ➔</button>
+        </div>
+    </div>
+
+    <div class="container" id="step-2">
+        <div class="icon-header">📅</div>
+        <h1>Дата и время</h1>
+        <p>Укажи день и точное время, когда тебе будет удобно начать, чтобы спокойно собраться.</p>
+
+        <div class="date-time-container">
+            <div class="picker-group">
+                <label for="date-input">Выбери дату:</label>
+                <input type="date" id="date-input" class="input-picker" onchange="updateDateTime()">
+            </div>
+            
+            <div class="picker-group">
+                <label for="time-input">Выбери время:</label>
+                <input type="time" id="time-input" class="input-picker" onchange="updateDateTime()">
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-back" onclick="changeStep(1)">⬅</button>
+            <button class="btn-next" onclick="changeStep(3)">Далее ➔</button>
+        </div>
+    </div>
+
+    <div class="container" id="step-3">
+        <div class="icon-header">💌</div>
+        <h1>Детали и пожелания</h1>
+        <p>Если хочешь что-то добавить (определенный десерт, плейлист или пожелания к планам) — напиши здесь.</p>
+
+        <textarea class="input-wishes" id="wishes-text" placeholder="Например: хочу сделать красивые фотографии на закате... ✨"></textarea>
+
+        <div class="btn-container">
+            <button class="btn-back" onclick="changeStep(2)">⬅</button>
+            <button class="btn-next" onclick="submitData()">Готово 💕</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let choices = {
+            place: "",
+            time: "", // Сюда теперь будет собираться и дата, и время в одну строчку
+            wishes: ""
+        };
+
+        function selectOption(type, element, value) {
+            const currentStep = element.closest('.container');
+            currentStep.querySelectorAll('.card').forEach(card => card.classList.remove('selected'));
+            
+            element.classList.add('selected');
+            choices[type] = value;
+
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        // Функция обновления даты и времени из инпутов
+        function updateDateTime() {
+            const dateVal = document.getElementById('date-input').value; // ГГГГ-ММ-ДД
+            const timeVal = document.getElementById('time-input').value; // ЧЧ:ММ
+            
+            if (dateVal && timeVal) {
+                // Преобразуем дату в более красивый формат, например: "2026-06-28 в 15:00"
+                choices.time = `${dateVal} в ${timeVal}`;
+            } else if (dateVal) {
+                choices.time = dateVal;
+            }
+        }
+
+        function changeStep(toStep) {
+            if (toStep === 2 && !choices.place) {
+                showNotice("Пожалуйста, выбери локацию! ✨");
+                return;
+            }
+            if (toStep === 3) {
+                const dateVal = document.getElementById('date-input').value;
+                const timeVal = document.getElementById('time-input').value;
+                if (!dateVal || !timeVal) {
+                    showNotice("Пожалуйста, укажи и дату, и точное время! 📅");
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${toStep}`).classList.add('active');
+            
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.selectionChanged();
+            }
+        }
+
+        function showNotice(msg) {
+            if (tg.showAlert) tg.showAlert(msg);
+            else alert(msg);
+        }
+
+        function submitData() {
+            choices.wishes = document.getElementById('wishes-text').value;
+            console.log("Данные готовы:", choices);
+            
+            const stringData = JSON.stringify(choices);
+            
+            if (tg.sendData) {
+                tg.sendData(stringData);
+            } else {
+                alert("Готово! Ответы будут отправлены боту: " + stringData);
+            }
+        }
+    </script>
+</body>
+</html>
