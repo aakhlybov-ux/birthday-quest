@@ -6,6 +6,13 @@
     <title>Birthday Quest ✨</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* Универсальный сброс, чтобы элементы не вылазили за границы экрана */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
             --bg-start: #ffb7c5; 
             --bg-end: #ffe3e8;   
@@ -19,15 +26,15 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
             color: var(--text-main);
-            margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
-            overflow-x: hidden;
+            /* Запрещаем скролл влево-вправо намертво */
+            overflow-x: hidden; 
             position: relative;
+            width: 100vw;
         }
 
         .bg-glow-1 {
@@ -57,7 +64,7 @@
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 100%; /* Адаптация под ширину экрана ТГ */
             text-align: center;
             z-index: 1;
             display: none; 
@@ -75,18 +82,20 @@
             animation: float 3s ease-in-out infinite;
         }
 
+        /* Заголовки теперь чисто белые с легкой тенью для читаемости */
         h1 {
             font-size: 24px;
             font-weight: 700;
             margin: 0 0 10px 0;
-            color: #401621;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(64, 22, 33, 0.15);
             letter-spacing: -0.5px;
         }
 
         p {
             font-size: 14.5px;
             font-weight: 500;
-            opacity: 0.85;
+            opacity: 0.9;
             line-height: 1.5;
             margin: 0 0 25px 0;
             padding: 0 10px;
@@ -98,9 +107,9 @@
             grid-template-columns: 1fr;
             gap: 14px;
             margin-bottom: 25px;
+            width: 100%;
         }
 
-        /* Карточки теперь компактные, без подтекста */
         .card {
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.6);
@@ -115,6 +124,7 @@
             align-items: center;
             gap: 16px;
             text-align: left;
+            width: 100%;
         }
 
         .card:hover {
@@ -153,12 +163,12 @@
             animation: pulse 0.5s ease;
         }
 
-        /* Контейнер для выбора даты и времени */
         .date-time-container {
             display: flex;
             flex-direction: column;
             gap: 16px;
             margin-bottom: 25px;
+            width: 100%;
         }
 
         .picker-group {
@@ -166,6 +176,7 @@
             flex-direction: column;
             text-align: left;
             gap: 6px;
+            width: 100%;
         }
 
         .picker-group label {
@@ -175,7 +186,6 @@
             padding-left: 4px;
         }
 
-        /* Красивые инпуты для даты и времени */
         .input-picker {
             width: 100%;
             background: var(--card-bg);
@@ -285,6 +295,7 @@
             100% { transform: scale(1); }
         }
     </style>
+
 </head>
 <body>
 
