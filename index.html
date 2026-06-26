@@ -6,21 +6,20 @@
     <title>Birthday Quest ✨</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Жесткий сброс отступов и фиксация размеров */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* Убираем синюю рамку при клике на смартфонах */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
-            --bg-start: #ffb7c5; 
-            --bg-end: #ffe3e8;   
-            --text-main: #3d222a; 
-            --accent: #ff788e;      
-            --accent-dark: #e65c73; 
-            --card-bg: rgba(255, 255, 255, 0.75); 
+            --bg-start: #cf8ca7; 
+            --bg-end: #baa3cc;   
+            --text-main: #2d121a; 
+            --accent: #ff5271;      
+            --accent-dark: #e63956; 
+            --card-bg: rgba(255, 255, 255, 0.82); 
         }
 
         html, body {
@@ -29,46 +28,67 @@
             background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-main);
-            overflow-x: hidden; /* Запрещаем горизонтальный скролл на уровне документа */
+            overflow-x: hidden;
             position: relative;
         }
 
         body {
-            padding: 24px 16px;
+            padding: 20px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* Декоративные светящиеся шары (фиксированные, чтобы не ломали верстку) */
         .bg-glow-1 {
             position: absolute;
             width: 250px;
             height: 250px;
-            background: #ff8fa3;
+            background: #e65c84;
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(70px);
             top: -40px;
             left: -50px;
             z-index: 0;
-            opacity: 0.5;
+            opacity: 0.4;
             pointer-events: none;
         }
         .bg-glow-2 {
             position: absolute;
             width: 280px;
             height: 280px;
-            background: #ffd0da;
+            background: #b386cc;
             border-radius: 50%;
-            filter: blur(50px);
+            filter: blur(60px);
             bottom: 20px;
             right: -60px;
             z-index: 0;
-            opacity: 0.7;
+            opacity: 0.5;
             pointer-events: none;
         }
 
-        /* Главный контейнер под размер экрана телефона */
+        /* Индикатор шагов (Progress Dots) */
+        .progress-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #ffffff;
+            width: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
         .container {
             width: 100%;
             max-width: 100%;
@@ -85,34 +105,32 @@
         .icon-header {
             font-size: 46px;
             margin-bottom: 12px;
-            filter: drop-shadow(0 4px 8px rgba(255, 120, 142, 0.3));
+            filter: drop-shadow(0 4px 10px rgba(230, 92, 132, 0.4));
             animation: float 3s ease-in-out infinite;
             text-align: center;
         }
 
-        /* Заголовки: теперь чисто белые, читабельные */
         h1 {
-            font-size: 23px;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 800;
             margin-bottom: 8px;
             color: #ffffff;
-            text-shadow: 0 1.5px 3px rgba(64, 22, 33, 0.2);
+            text-shadow: 0 2px 4px rgba(45, 18, 26, 0.25);
             letter-spacing: -0.3px;
             text-align: center;
         }
 
         p {
-            font-size: 14px;
-            font-weight: 500;
-            opacity: 0.9;
+            font-size: 14.5px;
+            font-weight: 700;
             line-height: 1.45;
             margin-bottom: 24px;
-            padding: 0 8px;
-            color: #4a232c;
+            padding: 0 12px;
+            color: #ffffff;
+            text-shadow: 0 1.5px 3px rgba(45, 18, 26, 0.25);
             text-align: center;
         }
 
-        /* Сетка карточек — строго внутри границ */
         .cards-grid {
             display: flex;
             flex-direction: column;
@@ -123,19 +141,20 @@
 
         .card {
             background: var(--card-bg);
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.7);
             border-radius: 18px;
-            padding: 14px 18px;
+            padding: 15px 18px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 6px 18px rgba(200, 120, 140, 0.1);
+            box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
             display: flex;
             align-items: center;
             gap: 14px;
             text-align: left;
             width: 100%;
+            position: relative;
         }
 
         .card-icon-wrapper {
@@ -147,28 +166,59 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            box-shadow: 0 4px 10px rgba(255, 120, 142, 0.08);
+            box-shadow: 0 4px 10px rgba(45, 18, 26, 0.05);
             flex-shrink: 0;
+            transition: background 0.25s ease;
         }
 
         .card-title {
-            font-size: 16px;
+            font-size: 16.5px;
             font-weight: 700;
-            color: #3d141e;
+            color: #2d121a;
+            flex-grow: 1;
         }
 
+        /* Невидимый чекбокс-кружок справа для прозрачности выбора */
+        .card-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(45, 18, 26, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .card-check::after {
+            content: "✓";
+            font-size: 12px;
+            font-weight: 900;
+            color: #ffffff;
+            display: none;
+        }
+
+        /* Стили при выборе карточки */
         .card.selected {
-            border-color: #ff5271;
+            border-color: var(--accent);
             background: #ffffff;
-            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.35);
-            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.4);
         }
 
         .card.selected .card-icon-wrapper {
             background: #ffe6eb;
         }
 
-        /* Форма даты/времени */
+        .card.selected .card-check {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .card.selected .card-check::after {
+            display: block;
+        }
+
         .date-time-container {
             display: flex;
             flex-direction: column;
@@ -186,16 +236,17 @@
         }
 
         .picker-group label {
-            font-size: 13.5px;
+            font-size: 14px;
             font-weight: 700;
-            color: #5c303c;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(45, 18, 26, 0.2);
             padding-left: 4px;
         }
 
         .input-picker {
             width: 100%;
             background: var(--card-bg);
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.7);
             border-radius: 16px;
             padding: 14px;
             font-family: inherit;
@@ -205,23 +256,21 @@
             outline: none;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 6px 18px rgba(200, 120, 140, 0.1);
+            box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
             transition: all 0.25s ease;
-            -webkit-appearance: none; /* Убираем дефолтные стили iOS */
         }
 
         .input-picker:focus {
-            border-color: #ff5271;
+            border-color: var(--accent);
             background: #ffffff;
-            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.15);
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.2);
         }
 
-        /* Поле ввода пожеланий */
         .input-wishes {
             width: 100%;
             height: 110px;
             background: var(--card-bg);
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.7);
             border-radius: 20px;
             padding: 16px;
             font-family: inherit;
@@ -231,18 +280,17 @@
             resize: none;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 6px 18px rgba(200, 120, 140, 0.1);
+            box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
             margin-bottom: 24px;
             transition: all 0.25s ease;
         }
 
         .input-wishes:focus {
-            border-color: #ff5271;
+            border-color: var(--accent);
             background: #ffffff;
-            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.15);
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.2);
         }
 
-        /* Кнопки навигации */
         .btn-container {
             width: 100%;
             display: flex;
@@ -262,9 +310,9 @@
         }
 
         .btn-next {
-            background: linear-gradient(135deg, #ff617c, #ff8fa3);
+            background: linear-gradient(135deg, #ff5271, #ff7894);
             color: #ffffff;
-            box-shadow: 0 5px 18px rgba(255, 97, 124, 0.35);
+            box-shadow: 0 5px 18px rgba(255, 82, 113, 0.4);
             flex-grow: 2;
         }
 
@@ -274,8 +322,8 @@
         }
 
         .btn-back {
-            background: rgba(255, 255, 255, 0.4);
-            color: #401621;
+            background: rgba(255, 255, 255, 0.35);
+            color: #ffffff;
             width: 56px;
             display: flex;
             align-items: center;
@@ -283,14 +331,13 @@
             flex-shrink: 0;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn-back:active {
             transform: scale(0.95);
         }
 
-        /* Анимации без сдвига по горизонтали */
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
@@ -307,6 +354,12 @@
     <div class="bg-glow-1"></div>
     <div class="bg-glow-2"></div>
 
+    <div class="progress-container">
+        <div class="dot active" id="dot-1"></div>
+        <div class="dot" id="dot-2"></div>
+        <div class="dot" id="dot-3"></div>
+    </div>
+
     <div class="container active" id="step-1">
         <div class="icon-header">✨</div>
         <h1>Выбор локации</h1>
@@ -316,16 +369,19 @@
             <div class="card" onclick="selectOption('place', this, 'Ресторан')">
                 <div class="card-icon-wrapper">🍝</div>
                 <div class="card-title">Ресторан</div>
+                <div class="card-check"></div>
             </div>
 
             <div class="card" onclick="selectOption('place', this, 'Пикник')">
                 <div class="card-icon-wrapper">🧺</div>
                 <div class="card-title">Пикник</div>
+                <div class="card-check"></div>
             </div>
 
             <div class="card" onclick="selectOption('place', this, 'Парк аттракционов')">
                 <div class="card-icon-wrapper">🎡</div>
                 <div class="card-title">Парк аттракционов</div>
+                <div class="card-check"></div>
             </div>
         </div>
 
@@ -373,7 +429,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready(); // Сообщаем ТГ, что приложение полностью загрузилось
+        tg.ready();
 
         let choices = {
             place: "",
@@ -406,21 +462,26 @@
 
         function changeStep(toStep) {
             if (toStep === 2 && !choices.place) {
-                showNotice("Пожалуйста, выбери локацию! ✨");
+                showNotice("Выбери локацию! ✨");
                 return;
             }
             if (toStep === 3) {
                 const dateVal = document.getElementById('date-input').value;
                 const timeVal = document.getElementById('time-input').value;
                 if (!dateVal || !timeVal) {
-                    showNotice("Пожалуйста, укажи и дату, и точное время! 📅");
+                    showNotice("Укажи дату и время! 📅");
                     return;
                 }
             }
 
+            // Переключаем экраны
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
             document.getElementById(`step-${toStep}`).classList.add('active');
             
+            // Обновляем индикатор точек
+            document.querySelectorAll('.dot').forEach(el => el.classList.remove('active'));
+            document.getElementById(`dot-${toStep}`).classList.add('active');
+
             if (tg.HapticFeedback) {
                 tg.HapticFeedback.selectionChanged();
             }
@@ -438,7 +499,7 @@
             if (tg.sendData) {
                 tg.sendData(stringData);
             } else {
-                alert("Данные для отправки боту: " + stringData);
+                alert("Данные: " + stringData);
             }
         }
     </script>
