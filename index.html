@@ -2,15 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Birthday Quest ✨</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Универсальный сброс, чтобы элементы не вылазили за границы экрана */
+        /* Жесткий сброс отступов и фиксация размеров */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Убираем синюю рамку при клике на смартфонах */
         }
 
         :root {
@@ -22,131 +23,136 @@
             --card-bg: rgba(255, 255, 255, 0.75); 
         }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        html, body {
+            width: 100%;
+            min-height: 100vh;
             background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-main);
-            padding: 20px;
+            overflow-x: hidden; /* Запрещаем горизонтальный скролл на уровне документа */
+            position: relative;
+        }
+
+        body {
+            padding: 24px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            /* Запрещаем скролл влево-вправо намертво */
-            overflow-x: hidden; 
-            position: relative;
-            width: 100vw;
         }
 
+        /* Декоративные светящиеся шары (фиксированные, чтобы не ломали верстку) */
         .bg-glow-1 {
             position: absolute;
-            width: 280px;
-            height: 280px;
+            width: 250px;
+            height: 250px;
             background: #ff8fa3;
             border-radius: 50%;
             filter: blur(60px);
-            top: -30px;
-            left: -40px;
+            top: -40px;
+            left: -50px;
             z-index: 0;
-            opacity: 0.6;
+            opacity: 0.5;
+            pointer-events: none;
         }
         .bg-glow-2 {
             position: absolute;
-            width: 320px;
-            height: 320px;
+            width: 280px;
+            height: 280px;
             background: #ffd0da;
             border-radius: 50%;
             filter: blur(50px);
-            bottom: 30px;
-            right: -80px;
+            bottom: 20px;
+            right: -60px;
             z-index: 0;
-            opacity: 0.8;
+            opacity: 0.7;
+            pointer-events: none;
         }
 
+        /* Главный контейнер под размер экрана телефона */
         .container {
             width: 100%;
-            max-width: 100%; /* Адаптация под ширину экрана ТГ */
-            text-align: center;
+            max-width: 100%;
             z-index: 1;
             display: none; 
+            box-sizing: border-box;
         }
 
         .container.active {
             display: block;
-            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .icon-header {
-            font-size: 50px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 4px 10px rgba(255, 120, 142, 0.4));
+            font-size: 46px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 8px rgba(255, 120, 142, 0.3));
             animation: float 3s ease-in-out infinite;
+            text-align: center;
         }
 
-        /* Заголовки теперь чисто белые с легкой тенью для читаемости */
+        /* Заголовки: теперь чисто белые, читабельные */
         h1 {
-            font-size: 24px;
+            font-size: 23px;
             font-weight: 700;
-            margin: 0 0 10px 0;
+            margin-bottom: 8px;
             color: #ffffff;
-            text-shadow: 0 2px 4px rgba(64, 22, 33, 0.15);
-            letter-spacing: -0.5px;
+            text-shadow: 0 1.5px 3px rgba(64, 22, 33, 0.2);
+            letter-spacing: -0.3px;
+            text-align: center;
         }
 
         p {
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 500;
             opacity: 0.9;
-            line-height: 1.5;
-            margin: 0 0 25px 0;
-            padding: 0 10px;
+            line-height: 1.45;
+            margin-bottom: 24px;
+            padding: 0 8px;
             color: #4a232c;
+            text-align: center;
         }
 
+        /* Сетка карточек — строго внутри границ */
         .cards-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
             width: 100%;
         }
 
         .card {
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 20px;
-            padding: 16px 20px;
+            border-radius: 18px;
+            padding: 14px 18px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 8px 24px rgba(200, 120, 140, 0.15);
+            box-shadow: 0 6px 18px rgba(200, 120, 140, 0.1);
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             text-align: left;
             width: 100%;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(200, 120, 140, 0.25);
-        }
-
         .card-icon-wrapper {
             background: #ffffff;
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 4px 12px rgba(255, 120, 142, 0.1);
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(255, 120, 142, 0.08);
             flex-shrink: 0;
         }
 
         .card-title {
-            font-size: 16.5px;
+            font-size: 16px;
             font-weight: 700;
             color: #3d141e;
         }
@@ -154,20 +160,20 @@
         .card.selected {
             border-color: #ff5271;
             background: #ffffff;
-            box-shadow: 0 12px 30px rgba(255, 82, 113, 0.4);
-            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.35);
+            transform: translateY(-1px);
         }
 
         .card.selected .card-icon-wrapper {
             background: #ffe6eb;
-            animation: pulse 0.5s ease;
         }
 
+        /* Форма даты/времени */
         .date-time-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-bottom: 25px;
+            gap: 14px;
+            margin-bottom: 24px;
             width: 100%;
         }
 
@@ -180,7 +186,7 @@
         }
 
         .picker-group label {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 700;
             color: #5c303c;
             padding-left: 4px;
@@ -190,34 +196,34 @@
             width: 100%;
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 18px;
-            padding: 16px;
-            box-sizing: border-box;
+            border-radius: 16px;
+            padding: 14px;
             font-family: inherit;
-            font-size: 16px;
+            font-size: 15.5px;
             font-weight: 600;
             color: var(--text-main);
             outline: none;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 8px 24px rgba(200, 120, 140, 0.15);
-            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(200, 120, 140, 0.1);
+            transition: all 0.25s ease;
+            -webkit-appearance: none; /* Убираем дефолтные стили iOS */
         }
 
         .input-picker:focus {
             border-color: #ff5271;
             background: #ffffff;
-            box-shadow: 0 12px 30px rgba(255, 82, 113, 0.2);
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.15);
         }
 
+        /* Поле ввода пожеланий */
         .input-wishes {
             width: 100%;
-            height: 120px;
+            height: 110px;
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 24px;
-            padding: 18px;
-            box-sizing: border-box;
+            border-radius: 20px;
+            padding: 16px;
             font-family: inherit;
             font-size: 15px;
             color: var(--text-main);
@@ -225,29 +231,30 @@
             resize: none;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 8px 24px rgba(200, 120, 140, 0.15);
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(200, 120, 140, 0.1);
+            margin-bottom: 24px;
+            transition: all 0.25s ease;
         }
 
         .input-wishes:focus {
             border-color: #ff5271;
             background: #ffffff;
-            box-shadow: 0 12px 30px rgba(255, 82, 113, 0.2);
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.15);
         }
 
+        /* Кнопки навигации */
         .btn-container {
             width: 100%;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
         }
 
         .btn-next, .btn-back {
             font-family: inherit;
             border: none;
-            border-radius: 20px;
-            padding: 16px;
+            border-radius: 18px;
+            padding: 15px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
@@ -257,19 +264,19 @@
         .btn-next {
             background: linear-gradient(135deg, #ff617c, #ff8fa3);
             color: #ffffff;
-            box-shadow: 0 6px 22px rgba(255, 97, 124, 0.45);
+            box-shadow: 0 5px 18px rgba(255, 97, 124, 0.35);
             flex-grow: 2;
         }
 
         .btn-next:active {
-            transform: scale(0.97);
-            background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+            transform: scale(0.98);
+            filter: brightness(0.95);
         }
 
         .btn-back {
             background: rgba(255, 255, 255, 0.4);
             color: #401621;
-            width: 60px;
+            width: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -279,23 +286,21 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        .btn-back:active {
+            transform: scale(0.95);
+        }
+
+        /* Анимации без сдвига по горизонтали */
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); filter: blur(5px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
+            50% { transform: translateY(-4px); }
         }
     </style>
-
 </head>
 <body>
 
@@ -368,10 +373,11 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready(); // Сообщаем ТГ, что приложение полностью загрузилось
 
         let choices = {
             place: "",
-            time: "", // Сюда теперь будет собираться и дата, и время в одну строчку
+            time: "",
             wishes: ""
         };
 
@@ -387,13 +393,11 @@
             }
         }
 
-        // Функция обновления даты и времени из инпутов
         function updateDateTime() {
-            const dateVal = document.getElementById('date-input').value; // ГГГГ-ММ-ДД
-            const timeVal = document.getElementById('time-input').value; // ЧЧ:ММ
+            const dateVal = document.getElementById('date-input').value;
+            const timeVal = document.getElementById('time-input').value;
             
             if (dateVal && timeVal) {
-                // Преобразуем дату в более красивый формат, например: "2026-06-28 в 15:00"
                 choices.time = `${dateVal} в ${timeVal}`;
             } else if (dateVal) {
                 choices.time = dateVal;
@@ -429,14 +433,12 @@
 
         function submitData() {
             choices.wishes = document.getElementById('wishes-text').value;
-            console.log("Данные готовы:", choices);
-            
             const stringData = JSON.stringify(choices);
             
             if (tg.sendData) {
                 tg.sendData(stringData);
             } else {
-                alert("Готово! Ответы будут отправлены боту: " + stringData);
+                alert("Данные для отправки боту: " + stringData);
             }
         }
     </script>

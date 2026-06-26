@@ -58,25 +58,37 @@ async def cmd_start(message: types.Message):
     user_id = message.from_user.id
 
     if user_id != TARGET_ID:
-        await message.answer("🔒 Извини, этот бот создан для конкретного человека и сейчас находится в приватном режиме.")
+        await message.answer("🔒 Извини, этот бот создан для конкретного человека.")
         return
 
     is_completed = get_user_status(user_id)
+
+    # Создаем обычную кнопку под полем ввода, которая на 100% поддерживает tg.sendData()
+    kb = [
+        [types.KeyboardButton(
+            text="Пройти опрос 🎁", 
+            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/")
+        )]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
 
     if not is_completed:
         await message.answer(
             f"Привет, {message.from_user.first_name}! ❤️\n\n"
             f"Я приготовил для тебя кое-что очень особенное.\n"
-            f"В левом нижнем углу чата появилась специальная кнопка подарка. "
-            f"Нажми её, чтобы открыть интерактивное приложение и начать! ✨",
-            reply_markup=types.ReplyKeyboardRemove()  # Удаляем старые реплай-кнопки
+            f"Нажми на кнопку «Пройти опрос 🎁» внизу, чтобы начать! ✨",
+            reply_markup=keyboard
         )
     else:
         await message.answer(
             f"С возвращением, солнце! 🥰\n\n"
-            f"Все твои пожелания сохранены. Нажми на ту же кнопку приложения внизу чата, "
-            f"чтобы посмотреть расписание нашего идеального дня! 🗺️",
-            reply_markup=types.ReplyKeyboardRemove()
+            f"Все твои пожелания уже сохранены. Если хочешь что-то изменить, "
+            f"можешь пройти опрос заново по кнопке внизу! 🗺️",
+            reply_markup=keyboard
         )
 
 # ХЭНДЛЕР ДЛЯ ПОЛУЧЕНИЯ ДАННЫХ ИЗ WEB APP
@@ -98,10 +110,10 @@ async def handle_web_app_data(message: types.Message):
         
         # Подтверждаем пользователю успешное заполнение квеста
         await message.answer(
-            f"✨ **Ура! Твои ответы успешно сохранены в базу!** ✨\n\n"
-            f"📍 **Место:** {place}\n"
-            f"⏰ **Время:** {time}\n"
-            f"💌 **Пожелания:** {wishes if wishes else 'Без особых пожеланий'}\n\n"
+            f"✨ Ура! Твои ответы успешно сохранены в базу! ✨\n\n"
+            f"📍 Место: {place}\n"
+            f"⏰ Время: {time}\n"
+            f"💌 Пожелания: {wishes if wishes else 'Без особых пожеланий'}\n\n"
             f"Я уже приступаю к подготовке нашего идеального дня! 🥰"
         )
         
