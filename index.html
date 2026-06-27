@@ -33,11 +33,12 @@
         }
 
         body {
-            padding: 24px 16px;
+            padding: 16px 16px 40px 16px; /* Добавили отступ снизу, чтобы кнопки не прижимались к краю */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Опускает всю структуру к центру экрана */
+            justify-content: flex-start; /* Поднимает структуру кверху */
+            padding-top: 12vh; /* Делает адаптивный отступ сверху в зависимости от высоты экрана */
         }
 
         .bg-glow-1 {
