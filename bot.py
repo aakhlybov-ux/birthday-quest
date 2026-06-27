@@ -64,7 +64,7 @@ async def cmd_start(message: types.Message):
     kb = [
         [types.KeyboardButton(
             text="Пройти опрос 🎁", 
-            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=8")
+            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=5")
         )]
     ]
     keyboard = types.ReplyKeyboardMarkup(
