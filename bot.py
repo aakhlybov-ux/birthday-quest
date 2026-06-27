@@ -7,7 +7,8 @@ from aiogram import Bot, Dispatcher, types, F
 # --- КОНФИГУРАЦИЯ (Переменные прямо в файле) ---
 BOT_TOKEN = '8837405019:AAFk_8uNRqGEbN936naBX3lzUSa3aEyNibU' 
 GIRLFRIEND_ID = 1003574497
-TARGET_ID = 1898915209
+TARGET_ID = GIRLFRIEND_ID
+ADMIN_ID = 1898915209
 
 # Инициализируем бота и диспетчер
 bot = Bot(token=BOT_TOKEN)
@@ -16,7 +17,6 @@ dp = Dispatcher()
 DB_NAME = "database.db"
 
 def init_db():
-    """Создает базу данных и таблицу для хранения выбора, если их нет"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
@@ -32,7 +32,6 @@ def init_db():
     conn.close()
 
 def get_user_status(user_id):
-    """Проверяет статус прохождения опроса (1 - пройдено, 0 - нет)"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("SELECT is_completed FROM user_choices WHERE user_id = ?", (user_id,))
@@ -41,7 +40,6 @@ def get_user_status(user_id):
     return result[0] if result else 0
 
 def save_user_choices(user_id, place, time, wishes):
-    """Записывает ответы в базу данных и ставит статус прохождения 1"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
@@ -56,17 +54,17 @@ def save_user_choices(user_id, place, time, wishes):
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
 
-    if user_id != TARGET_ID:
+    if user_id != TARGET_ID and user_id != ADMIN_ID:
         await message.answer("🔒 Извини, этот бот создан для конкретного человека.")
         return
 
     is_completed = get_user_status(user_id)
 
-    # Создаем обычную кнопку под полем ввода, которая на 100% поддерживает tg.sendData()
+    
     kb = [
         [types.KeyboardButton(
             text="Пройти опрос 🎁", 
-            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=6")
+            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=4")
         )]
     ]
     keyboard = types.ReplyKeyboardMarkup(
@@ -77,26 +75,26 @@ async def cmd_start(message: types.Message):
 
     if not is_completed:
         await message.answer(
-            f"Привет, Любимая! ❤️\n\n"
-            f"Я приготовил для тебя кое-что очень особенное.\n"
-            f"Нажми на кнопку «Пройти опрос 🎁» внизу, чтобы начать ✨",
+            f"привет, ариночка! ❤️\n\n"
+            f"я приготовил для тебя кое-что особенное.\n"
+            f"нажми на кнопку «Пройти опрос 🎁» внизу, чтобы начать ✨",
             reply_markup=keyboard
         )
     else:
         await message.answer(
-            f"С возвращением, солнце! 🥰\n\n"
-            f"Я уже увидел все твои пожелания. Если хочешь что-то изменить, "
+            f"с возвращением, солнце 🥰\n\n"
+            f"я уже увидел все твои пожелания. если хочешь что-то поменять, "
             f"можешь пройти опрос заново по кнопке внизу! 🗺️",
             reply_markup=keyboard
         )
 
-# ХЭНДЛЕР ДЛЯ ПОЛУЧЕНИЯ ДАННЫХ ИЗ WEB APP
+
 @dp.message(F.content_type == types.ContentType.WEB_APP_DATA)
 async def handle_web_app_data(message: types.Message):
     user_id = message.from_user.id
     
     try:
-        # Извлекаем сырую строку JSON из Web App и парсим её в питоновский словарь
+        
         raw_data = message.web_app_data.data
         data = json.loads(raw_data)
         
@@ -104,17 +102,23 @@ async def handle_web_app_data(message: types.Message):
         time = data.get("time", "Не выбрано")
         wishes = data.get("wishes", "")
         
-        # Записываем всё в SQLite базу данных
+        
         save_user_choices(user_id, place, time, wishes)
         
         # Подтверждаем пользователю успешное заполнение квеста
         await message.answer(
-            f"✨ Ура! Твои ответы успешно сохранены в базу! ✨\n\n"
-            f"📍 Место: {place}\n"
-            f"⏰ Время: {time}\n"
-            f"💌 Пожелания: {wishes if wishes else 'Без особых пожеланий'}\n\n"
-            f"Я уже приступаю к подготовке нашего идеального дня! 🥰"
+            f"запомнил твои ответы, кисунь ✨\n\n"
+            f"уже приступаю к подготовке нашего идеального дня 🥰"
         )
+
+        admin_report = (
+            f"🔔 **Новый отчет по квесту!** 🔔\n\n"
+            f"❤️ Любимая заполнила анкету в Web App:\n\n"
+            f"📍 **Выбранное место:** {place}\n"
+            f"⏰ **Дата и время:** {time}\n"
+            f"💌 **Пожелания:** {wishes if wishes else 'Оставлено пустым'}"
+        )
+        await bot.send_message(chat_id=ADMIN_ID, text=admin_report, parse_mode="Markdown")
         
     except Exception as e:
         print(f"Ошибка при обработке данных Web App: {e}")
