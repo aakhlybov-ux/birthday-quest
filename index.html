@@ -225,7 +225,7 @@
             gap: 14px;
             margin-bottom: 24px;
             width: 100%;
-            align-items: center;
+            align-items: center; /* Центрирует внутренние элементы по горизонтали */
         }
 
         .picker-group {
@@ -234,7 +234,8 @@
             text-align: left;
             gap: 6px;
             width: 100%;
-            max-width: 290px; /* Сузили инпуты под ширину экрана iPhone/Android */
+            max-width: 290px; /* Задает компактную ширину как на ПК */
+            box-sizing: border-box;
         }
 
         .picker-group label {
