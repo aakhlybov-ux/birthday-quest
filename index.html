@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Birthday Quest ✨</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -34,12 +33,12 @@
         }
 
         body {
-            padding: 16px 16px 40px 16px;
+            padding: 16px 16px 40px 16px; /* Запас снизу под кнопку */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Поднимаем весь контент кверху */
-            padding-top: 8vh; /* Плавный адаптивный отступ сверху */
+            justify-content: flex-start; /* Поднимает структуру наверх */
+            padding-top: 10vh; /* Делает адаптивный отступ сверху */
         }
 
         .bg-glow-1 {
@@ -106,10 +105,11 @@
         }
 
         .icon-header {
+            font-size: 46px;
             margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            filter: drop-shadow(0 4px 10px rgba(230, 92, 132, 0.4));
+            animation: float 3s ease-in-out infinite;
+            text-align: center;
         }
 
         h1 {
@@ -225,7 +225,7 @@
             gap: 14px;
             margin-bottom: 24px;
             width: 100%;
-            align-items: center; /* Центрируем блоки ввода горизонтально */
+            align-items: center; /* Центрирует внутренние элементы по горизонтали */
         }
 
         .picker-group {
@@ -234,7 +234,7 @@
             text-align: left;
             gap: 6px;
             width: 100%;
-            max-width: 290px; /* Сужаем поля до идеальной ширины смартфона */
+            max-width: 290px; /* Задает компактную ширину как на ПК */
             box-sizing: border-box;
         }
 
@@ -345,6 +345,11 @@
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
     </style>
 </head>
 <body>
@@ -359,9 +364,7 @@
     </div>
 
     <div class="container active" id="step-1">
-        <div class="icon-header">
-            <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_m9ubpbyi.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-        </div>
+        <div class="icon-header">✨</div>
         <h1>Выбор локации</h1>
         <p>С какого места мы начнем этот день? Выбери вариант, который тебе ближе всего.</p>
 
@@ -391,9 +394,7 @@
     </div>
 
     <div class="container" id="step-2">
-        <div class="icon-header">
-            <lottie-player src="https://assets5.lottiefiles.com/packages/lf20_w8b9g0w7.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-        </div>
+        <div class="icon-header">📅</div>
         <h1>Дата и время</h1>
         <p>Укажи день и точное время, когда тебе будет удобно начать, чтобы спокойно собраться.</p>
 
@@ -416,9 +417,7 @@
     </div>
 
     <div class="container" id="step-3">
-        <div class="icon-header">
-            <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_v7v9moxm.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-        </div>
+        <div class="icon-header">💌</div>
         <h1>Детали и пожелания</h1>
         <p>Если хочешь что-то добавить (определенный десерт, плейлист или пожелания к планам) — напиши здесь.</p>
 
@@ -478,9 +477,11 @@
                 }
             }
 
+            // Переключаем экраны
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
             document.getElementById(`step-${toStep}`).classList.add('active');
             
+            // Обновляем индикатор точек
             document.querySelectorAll('.dot').forEach(el => el.classList.remove('active'));
             document.getElementById(`dot-${toStep}`).classList.add('active');
 
