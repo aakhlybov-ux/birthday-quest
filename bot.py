@@ -1,7 +1,6 @@
 import sqlite3
 import json
 import asyncio
-
 from aiogram.filters import CommandStart
 from aiogram import Bot, Dispatcher, types, F
 
@@ -67,7 +66,7 @@ async def cmd_start(message: types.Message):
     kb = [
         [types.KeyboardButton(
             text="Пройти опрос 🎁", 
-            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=5")
+            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=6")
         )]
     ]
     keyboard = types.ReplyKeyboardMarkup(
@@ -78,15 +77,15 @@ async def cmd_start(message: types.Message):
 
     if not is_completed:
         await message.answer(
-            f"Привет, {message.from_user.first_name}! ❤️\n\n"
+            f"Привет, Любимая! ❤️\n\n"
             f"Я приготовил для тебя кое-что очень особенное.\n"
-            f"Нажми на кнопку «Пройти опрос 🎁» внизу, чтобы начать! ✨",
+            f"Нажми на кнопку «Пройти опрос 🎁» внизу, чтобы начать ✨",
             reply_markup=keyboard
         )
     else:
         await message.answer(
             f"С возвращением, солнце! 🥰\n\n"
-            f"Все твои пожелания уже сохранены. Если хочешь что-то изменить, "
+            f"Я уже увидел все твои пожелания. Если хочешь что-то изменить, "
             f"можешь пройти опрос заново по кнопке внизу! 🗺️",
             reply_markup=keyboard
         )
