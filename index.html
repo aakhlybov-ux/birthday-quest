@@ -225,7 +225,8 @@
             gap: 14px;
             margin-bottom: 24px;
             width: 100%;
-            align-items: center; /* Центрирует внутренние элементы по горизонтали */
+            align-items: flex-start; /* Жестко смещаем поля к левому краю */
+            padding-left: 12px;      /* Небольшой эстетичный отступ от края экрана */
         }
 
         .picker-group {
@@ -233,8 +234,9 @@
             flex-direction: column;
             text-align: left;
             gap: 6px;
-            width: 100%;
-            max-width: 290px; /* Задает компактную ширину как на ПК */
+            width: 75%;             /* Ширина теперь зависит от дисплея (занимает 75% экрана) */
+            max-width: 320px;       /* Ограничитель для больших экранов, чтоб не перерастягивалось */
+            min-width: 240px;       /* Минимальный порог для совсем маленьких телефонов */
             box-sizing: border-box;
         }
 
@@ -419,9 +421,9 @@
     <div class="container" id="step-3">
         <div class="icon-header">💌</div>
         <h1>Детали и пожелания</h1>
-        <p>Если хочешь что-то добавить (определенное кафе, блюда или пожелания к планам) — напиши здесь.</p>
+        <p>Если хочешь что-то добавить (определенное кафе, блюда или пожелания к планам) — напиши тут</p>
 
-        <textarea class="input-wishes" id="wishes-text" placeholder="Например: хочу, чтобы мы наснимали с тобой тиктоков ✨"></textarea>
+        <textarea class="input-wishes" id="wishes-text" placeholder="Например: хочу, чтобы мы наснимали с тобой милых видео..."></textarea>
 
         <div class="btn-container">
             <button class="btn-back" onclick="changeStep(2)">⬅</button>
