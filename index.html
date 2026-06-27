@@ -33,10 +33,11 @@
         }
 
         body {
-            padding: 20px 16px;
+            padding: 24px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center; /* Опускает всю структуру к центру экрана */
         }
 
         .bg-glow-1 {
@@ -70,7 +71,7 @@
         .progress-container {
             display: flex;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             z-index: 1;
         }
 
@@ -178,7 +179,6 @@
             flex-grow: 1;
         }
 
-        /* Невидимый чекбокс-кружок справа для прозрачности выбора */
         .card-check {
             width: 20px;
             height: 20px;
@@ -199,7 +199,6 @@
             display: none;
         }
 
-        /* Стили при выборе карточки */
         .card.selected {
             border-color: var(--accent);
             background: #ffffff;
@@ -225,6 +224,7 @@
             gap: 14px;
             margin-bottom: 24px;
             width: 100%;
+            align-items: center; /* Центрирует группу полей ввода */
         }
 
         .picker-group {
@@ -233,6 +233,7 @@
             text-align: left;
             gap: 6px;
             width: 100%;
+            max-width: 320px; /* Сужаем ширину под экран телефона */
         }
 
         .picker-group label {
