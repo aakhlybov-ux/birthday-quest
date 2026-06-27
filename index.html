@@ -365,8 +365,8 @@
 
     <div class="container active" id="step-1">
         <div class="icon-header">✨</div>
-        <h1>Выбор локации</h1>
-        <p>С какого места мы начнем этот день? Выбери вариант, который тебе ближе всего.</p>
+        <h1>Выбор места</h1>
+        <p>Откуда начнем этот день? Выбери вариант, который будет приятнее всего.</p>
 
         <div class="cards-grid">
             <div class="card" onclick="selectOption('place', this, 'Ресторан')">
@@ -396,16 +396,16 @@
     <div class="container" id="step-2">
         <div class="icon-header">📅</div>
         <h1>Дата и время</h1>
-        <p>Укажи день и точное время, когда тебе будет удобно начать, чтобы спокойно собраться.</p>
+        <p>Выбери день и то время, когда будет удобно начать, чтобы спокойно собраться.</p>
 
         <div class="date-time-container">
             <div class="picker-group">
-                <label for="date-input">Выбери дату:</label>
+                <label for="date-input">Дата:</label>
                 <input type="date" id="date-input" class="input-picker" onchange="updateDateTime()">
             </div>
             
             <div class="picker-group">
-                <label for="time-input">Выбери время:</label>
+                <label for="time-input">Время:</label>
                 <input type="time" id="time-input" class="input-picker" onchange="updateDateTime()">
             </div>
         </div>
@@ -419,9 +419,9 @@
     <div class="container" id="step-3">
         <div class="icon-header">💌</div>
         <h1>Детали и пожелания</h1>
-        <p>Если хочешь что-то добавить (определенный десерт, плейлист или пожелания к планам) — напиши здесь.</p>
+        <p>Если хочешь что-то добавить (определенное кафе, блюда или пожелания к планам) — напиши здесь.</p>
 
-        <textarea class="input-wishes" id="wishes-text" placeholder="Например: хочу сделать красивые фотографии на закате... ✨"></textarea>
+        <textarea class="input-wishes" id="wishes-text" placeholder="Например: хочу, чтобы мы наснимали с тобой тиктоков ✨"></textarea>
 
         <div class="btn-container">
             <button class="btn-back" onclick="changeStep(2)">⬅</button>
