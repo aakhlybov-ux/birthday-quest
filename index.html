@@ -307,50 +307,51 @@
             display: block;
         }
 
-        /* Полноразмерный контейнер, идеально согласованный с остальной сеткой */
+        /* Возвращено к исходному аккуратному стилю */
         .date-time-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             margin-bottom: 24px;
             width: 100%;
-            box-sizing: border-box;
+            align-items: flex-start; 
+            padding-left: 12px;      
         }
 
         .picker-group {
             display: flex;
             flex-direction: column;
             text-align: left;
-            gap: 8px;
-            width: 100%;             
+            gap: 6px;
+            width: 85%;             
+            max-width: 360px;       
+            min-width: 240px;       
             box-sizing: border-box;
         }
 
         .picker-group label {
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 700;
             color: #ffffff;
-            text-shadow: 0 1.5px 3px rgba(45, 18, 26, 0.25);
+            text-shadow: 0 1px 2px rgba(45, 18, 26, 0.2);
             padding-left: 4px;
         }
 
-        /* Поля ввода теперь идеально копируют форму и размеры кнопок "Далее" */
         .input-picker {
             width: 100%;
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 18px; /* В точности как у карточек и кнопок */
-            padding: 15px 18px; /* Совпадает по набивочным отступам */
+            border-radius: 16px;
+            padding: 14px;
             font-family: inherit;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 15.5px;
+            font-weight: 600;
             color: var(--text-main);
             outline: none;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 54px; /* Ровно 54px, как у кнопок */
+            transition: all 0.25s ease;
         }
 
         .input-picker:focus {
@@ -470,13 +471,13 @@
             border-radius: 16px;
             overflow: hidden;
             position: relative;
-            background: #faf8e8;
+            background: #ffffff; /* Белая подложка под фон картинки */
         }
 
         .love-is-photo-box img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Картинка полностью помещается в рамку без обрезки */
             border-radius: 16px;
             display: block;
         }
@@ -610,11 +611,11 @@
         <div class="love-is-card">
             <div class="love-is-brand">love is...</div>
             <div class="love-is-photo-box">
-                <!-- Загруженная в репозиторий сгенерированная картинка -->
-                <img src="love-is-photo.png" alt="Love is..." onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <!-- Пытаемся отобразить картинку по оригинальному названию IMG_4757.PNG, затем love-is-photo.png, если что-то пойдет не так — показываем текст-заглушку -->
+                <img src="IMG_4757.PNG" alt="Love is..." onerror="handleImgError(this)">
                 <div class="love-is-placeholder-fallback" style="display:none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #ff7894; text-align: center; padding: 10px;">
                     <span>Здесь будет наша милая фотка 📸</span>
-                    <span style="font-size: 11px; color: #ffa3b6; font-weight: normal;">Загрузи love-is-photo.png в репозиторий!</span>
+                    <span style="font-size: 11px; color: #ffa3b6; font-weight: normal;">Загрузи IMG_4757.PNG в репозиторий!</span>
                 </div>
             </div>
             <p class="love-is-caption">...вместе планировать идеальный день рождения и улыбаться каждой минутке.</p>
@@ -642,6 +643,18 @@
         let currentActiveStep = 0; // На каком слайде находится пользователь
         let isGiftOpened = false;  // Флаг распаковки подарка
 
+        // --- ОБРАБОТКА ОШИБКИ ИЗОБРАЖЕНИЯ ---
+        function handleImgError(img) {
+            if (img.getAttribute('src') === 'IMG_4757.PNG') {
+                // Если файл не найден под оригинальным именем, пробуем дефолтное
+                img.src = 'love-is-photo.png';
+            } else {
+                // Если и дефолтное не найдено, убираем картинку и активируем текстовую заглушку
+                img.style.display = 'none';
+                img.nextElementSibling.style.display = 'flex';
+            }
+        }
+
         // --- КОНФЕТТИ И СЕРДЕЧКИ (Canvas) ---
         const canvas = document.getElementById('animation-canvas');
         const ctx = canvas.getContext('2d');
@@ -659,7 +672,7 @@
                 this.x = x;
                 this.y = y;
                 this.type = type; 
-                this.size = Math.random() * 6 + (type === 'heart' ? 10 : 4); // Чуть уменьшили масштаб летящих крупиц
+                this.size = Math.random() * 6 + (type === 'heart' ? 10 : 4); 
                 
                 const angle = Math.random() * Math.PI * 2;
                 const speed = burst ? (Math.random() * 8 + 3) : (Math.random() * 1.8 + 0.8); 
@@ -724,7 +737,6 @@
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             
-            // Сбалансировали количество взрывных конфетти (сделали чуть меньше)
             for (let i = 0; i < 45; i++) particles.push(new Particle(centerX, centerY, 'confetti', true));
             for (let i = 0; i < 22; i++) particles.push(new Particle(centerX, centerY, 'heart', true));
             for (let i = 0; i < 15; i++) particles.push(new Particle(centerX, centerY, 'sparkle', true));
@@ -732,11 +744,9 @@
 
         // Постоянный легкий спавн частиц во время прохождения квеста
         function spawnContinuous() {
-            // Лимитируем фоновые частицы (сделали еще более нежным: на шаге 0/4 до 90, на шагах опроса - до 18 штук)
             const maxParticles = (currentActiveStep === 0 || currentActiveStep === 4) ? 90 : 18;
 
             if (particles.length < maxParticles) {
-                // Понизили вероятность спавна для деликатности
                 const spawnChance = (currentActiveStep === 0 || currentActiveStep === 4) ? 0.6 : 0.08;
                 if (Math.random() > spawnChance) return;
 
@@ -766,7 +776,6 @@
             requestAnimationFrame(animate);
         }
 
-        // Запуск анимационного цикла
         animate();
         setTimeout(triggerBurst, 500);
 
@@ -775,16 +784,13 @@
             if (isGiftOpened) return;
             isGiftOpened = true;
 
-            // Хэптик на открытие
             if (tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
             }
 
-            // Массированный взрыв салютов
             triggerBurst();
             setTimeout(triggerBurst, 250);
 
-            // Анимационное скрытие подарка и проявление контента
             const giftBox = document.getElementById('unboxing-box');
             const greetingDetails = document.getElementById('greeting-details');
 
@@ -836,9 +842,8 @@
                 }
             }
 
-            currentActiveStep = toStep; // Запоминаем текущий шаг
+            currentActiveStep = toStep; 
 
-            // Регулируем видимость индикатора без скрытия из макета
             const progressContainer = document.querySelector('.progress-container');
             if (toStep === 0 || toStep === 4) {
                 progressContainer.style.visibility = 'hidden';
@@ -849,11 +854,10 @@
                 if (activeDot) activeDot.classList.add('active');
             }
 
-            // Быстро растворяем лишние старые частицы, если ушли со стартового слайда
             if (toStep !== 0 && toStep !== 4 && particles.length > 18) {
                 particles.forEach((p, idx) => {
                     if (idx > 12) {
-                        p.fade = Math.random() * 0.05 + 0.03; // Резко ускоряем исчезновение
+                        p.fade = Math.random() * 0.05 + 0.03; 
                     }
                 });
             }
