@@ -22,7 +22,6 @@
             --card-bg: rgba(255, 255, 255, 0.82); 
         }
 
-        /* */
         html, body {
             width: 100%;
             min-height: 100vh;
@@ -132,21 +131,20 @@
             animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* */
         /* Стили для интерактива с подарком */
         .gift-box-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 50px 0;
+            padding: 80px 0 40px 0; /* Опускаем подарок ближе к центру экрана */
             cursor: pointer;
             width: 100%;
             transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         .gift-emoji {
-            font-size: 84px;
+            font-size: 96px; /* Чуть увеличили размер для акцента по центру */
             filter: drop-shadow(0 10px 20px rgba(255, 82, 113, 0.5));
             animation: bounceGift 1.8s infinite ease-in-out;
             transition: transform 0.2s ease;
@@ -184,6 +182,7 @@
                         transform 1s cubic-bezier(0.19, 1, 0.22, 1), 
                         filter 1s cubic-bezier(0.19, 1, 0.22, 1);
             pointer-events: none;
+            padding-top: 30px; /* Опускаем контент поздравления на титульном слайде ниже */
         }
 
         .revealed-content.show {
@@ -308,7 +307,6 @@
             display: block;
         }
 
-        /* */
         /* Отрегулированные стили для идеальной геометрии ввода даты/времени */
         .date-time-container {
             display: flex;
@@ -317,15 +315,16 @@
             margin-bottom: 24px;
             width: 100%;
             box-sizing: border-box;
-            align-items: stretch; /* Растягиваем элементы на всю ширину страницы */
+            align-items: center; /* Выравниваем по центру */
         }
 
         .picker-group {
             display: flex;
             flex-direction: column;
             text-align: left;
-            gap: 8px;
+            gap: 6px;
             width: 100%;             
+            max-width: 310px; /* Укоротили контейнеры ввода */
             box-sizing: border-box;
         }
 
@@ -341,10 +340,10 @@
             width: 100%;
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 18px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 10px 14px; /* Уменьшили внутренний отступ, чтобы инпуты стали тоньше */
             font-family: inherit;
-            font-size: 15.5px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text-main);
             outline: none;
@@ -352,7 +351,7 @@
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 52px; /* Фиксированная высота для стабильности интерфейса */
+            height: 44px; /* Уменьшили высоту инпутов с 52px до 44px */
         }
 
         .input-picker:focus {
@@ -510,7 +509,6 @@
 
     <canvas id="animation-canvas"></canvas>
 
-    <!-- -->
     <!-- Индикатор теперь всегда на месте, чтобы сохранить вертикальный баланс элементов -->
     <div class="progress-container">
         <div class="dot" id="dot-1"></div>
@@ -631,7 +629,6 @@
         </div>
     </div>
 
-    <!-- -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -663,19 +660,19 @@
                 this.x = x;
                 this.y = y;
                 this.type = type; 
-                this.size = Math.random() * 8 + (type === 'heart' ? 12 : 5);
+                this.size = Math.random() * 6 + (type === 'heart' ? 10 : 4); // Чуть уменьшили масштаб летящих крупиц
                 
                 const angle = Math.random() * Math.PI * 2;
-                const speed = burst ? (Math.random() * 9 + 4) : (Math.random() * 2 + 1);
+                const speed = burst ? (Math.random() * 8 + 3) : (Math.random() * 1.8 + 0.8); 
                 
                 this.vx = Math.cos(angle) * speed;
-                this.vy = burst ? (Math.sin(angle) * speed - 2) : (Math.random() * 1.5 + 0.5); 
+                this.vy = burst ? (Math.sin(angle) * speed - 2) : (Math.random() * 1.2 + 0.4); 
                 
-                this.gravity = burst ? 0.18 : 0.02;
+                this.gravity = burst ? 0.16 : 0.015;
                 this.opacity = 1;
-                this.fade = burst ? (Math.random() * 0.015 + 0.008) : (Math.random() * 0.005 + 0.002);
+                this.fade = burst ? (Math.random() * 0.015 + 0.008) : (Math.random() * 0.004 + 0.002);
                 this.rotation = Math.random() * Math.PI * 2;
-                this.rotationSpeed = (Math.random() - 0.5) * 0.08;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.06;
                 
                 const colors = ['#ff5271', '#ff7894', '#ffccd5', '#ffd166', '#ffffff', '#bc84ee'];
                 this.color = colors[Math.floor(Math.random() * colors.length)];
@@ -723,25 +720,25 @@
             }
         }
 
-        //        // Взрывная хлопушка
+        // Взрывная хлопушка
         function triggerBurst() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             
-            for (let i = 0; i < 60; i++) particles.push(new Particle(centerX, centerY, 'confetti', true));
-            for (let i = 0; i < 30; i++) particles.push(new Particle(centerX, centerY, 'heart', true));
-            for (let i = 0; i < 20; i++) particles.push(new Particle(centerX, centerY, 'sparkle', true));
+            // Сбалансировали количество взрывных конфетти (сделали чуть меньше)
+            for (let i = 0; i < 45; i++) particles.push(new Particle(centerX, centerY, 'confetti', true));
+            for (let i = 0; i < 22; i++) particles.push(new Particle(centerX, centerY, 'heart', true));
+            for (let i = 0; i < 15; i++) particles.push(new Particle(centerX, centerY, 'sparkle', true));
         }
 
         // Постоянный легкий спавн частиц во время прохождения квеста
         function spawnContinuous() {
-            // Лимитируем частицы в зависимости от состояния
-            // На первом слайде (0) лимит повыше, на остальных шагах — до 30 штук для фонового эффекта
-            const maxParticles = (currentActiveStep === 0 || currentActiveStep === 4) ? 150 : 30;
+            // Лимитируем фоновые частицы (сделали еще более нежным: на шаге 0/4 до 90, на шагах опроса - до 18 штук)
+            const maxParticles = (currentActiveStep === 0 || currentActiveStep === 4) ? 90 : 18;
 
             if (particles.length < maxParticles) {
-                // Плавное падение с меньшей частотой для шагов 1, 2, 3
-                const spawnChance = (currentActiveStep === 0 || currentActiveStep === 4) ? 0.8 : 0.15;
+                // Понизили вероятность спавна для деликатности
+                const spawnChance = (currentActiveStep === 0 || currentActiveStep === 4) ? 0.6 : 0.08;
                 if (Math.random() > spawnChance) return;
 
                 const x = Math.random() * canvas.width;
@@ -774,7 +771,7 @@
         animate();
         setTimeout(triggerBurst, 500);
 
-        //        // Логика интерактивного подарка
+        // Логика интерактивного подарка
         function revealBirthdayMessage() {
             if (isGiftOpened) return;
             isGiftOpened = true;
@@ -784,10 +781,9 @@
                 tg.HapticFeedback.notificationOccurred('success');
             }
 
-            // Массированный взрыв салютов (3 взрыва друг за другом для вау-эффекта)
+            // Массированный взрыв салютов
             triggerBurst();
             setTimeout(triggerBurst, 250);
-            setTimeout(triggerBurst, 500);
 
             // Анимационное скрытие подарка и проявление контента
             const giftBox = document.getElementById('unboxing-box');
@@ -855,9 +851,9 @@
             }
 
             // Быстро растворяем лишние старые частицы, если ушли со стартового слайда
-            if (toStep !== 0 && toStep !== 4 && particles.length > 30) {
+            if (toStep !== 0 && toStep !== 4 && particles.length > 18) {
                 particles.forEach((p, idx) => {
-                    if (idx > 25) {
+                    if (idx > 12) {
                         p.fade = Math.random() * 0.05 + 0.03; // Резко ускоряем исчезновение
                     }
                 });
