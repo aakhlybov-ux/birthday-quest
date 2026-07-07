@@ -51,7 +51,7 @@
                 border-radius: 30px;
             }
             html {
-                background: #18151b; /* Приятный глубокий фон для ПК версии */
+                background: #18151b; 
             }
         }
 
@@ -96,7 +96,7 @@
         /* Индикатор шагов (Progress Dots) */
         .progress-container {
             display: flex; 
-            visibility: hidden; /* Скрыт на шаге 0, но держит ровную высоту для контента */
+            visibility: hidden; 
             gap: 8px;
             margin-bottom: 24px;
             z-index: 10;
@@ -137,14 +137,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 80px 0 40px 0; /* Опускаем подарок ближе к центру экрана */
+            padding: 80px 0 40px 0; 
             cursor: pointer;
             width: 100%;
             transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         .gift-emoji {
-            font-size: 96px; /* Чуть увеличили размер для акцента по центру */
+            font-size: 96px; 
             filter: drop-shadow(0 10px 20px rgba(255, 82, 113, 0.5));
             animation: bounceGift 1.8s infinite ease-in-out;
             transition: transform 0.2s ease;
@@ -182,7 +182,7 @@
                         transform 1s cubic-bezier(0.19, 1, 0.22, 1), 
                         filter 1s cubic-bezier(0.19, 1, 0.22, 1);
             pointer-events: none;
-            padding-top: 30px; /* Опускаем контент поздравления на титульном слайде ниже */
+            padding-top: 30px; 
         }
 
         .revealed-content.show {
@@ -307,7 +307,7 @@
             display: block;
         }
 
-        /* Отрегулированные стили для идеальной геометрии ввода даты/времени */
+        /* Полноразмерный контейнер, идеально согласованный с остальной сеткой */
         .date-time-container {
             display: flex;
             flex-direction: column;
@@ -315,43 +315,42 @@
             margin-bottom: 24px;
             width: 100%;
             box-sizing: border-box;
-            align-items: center; /* Выравниваем по центру */
         }
 
         .picker-group {
             display: flex;
             flex-direction: column;
             text-align: left;
-            gap: 6px;
+            gap: 8px;
             width: 100%;             
-            max-width: 310px; /* Укоротили контейнеры ввода */
             box-sizing: border-box;
         }
 
         .picker-group label {
-            font-size: 14px;
+            font-size: 14.5px;
             font-weight: 700;
             color: #ffffff;
-            text-shadow: 0 1px 2px rgba(45, 18, 26, 0.2);
-            padding-left: 6px;
+            text-shadow: 0 1.5px 3px rgba(45, 18, 26, 0.25);
+            padding-left: 4px;
         }
 
+        /* Поля ввода теперь идеально копируют форму и размеры кнопок "Далее" */
         .input-picker {
             width: 100%;
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 10px 14px; /* Уменьшили внутренний отступ, чтобы инпуты стали тоньше */
+            border-radius: 18px; /* В точности как у карточек и кнопок */
+            padding: 15px 18px; /* Совпадает по набивочным отступам */
             font-family: inherit;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
             color: var(--text-main);
             outline: none;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 44px; /* Уменьшили высоту инпутов с 52px до 44px */
+            height: 54px; /* Ровно 54px, как у кнопок */
         }
 
         .input-picker:focus {
