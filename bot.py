@@ -64,7 +64,7 @@ async def cmd_start(message: types.Message):
     kb = [
         [types.KeyboardButton(
             text="Пройти опрос 🎁", 
-            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/?v=3")
+            web_app=types.WebAppInfo(url="https://aakhlybov-ux.github.io/birthday-quest/")
         )]
     ]
     keyboard = types.ReplyKeyboardMarkup(
@@ -75,7 +75,7 @@ async def cmd_start(message: types.Message):
 
     if not is_completed:
         await message.answer(
-            f"привет, ариночка! ❤️\n\n"
+            f"привет, любимая! ❤️\n\n"
             f"я приготовил для тебя кое-что особенное.\n"
             f"нажми на кнопку «Пройти опрос 🎁» внизу, чтобы начать ✨",
             reply_markup=keyboard

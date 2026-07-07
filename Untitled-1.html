@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Birthday Quest ✨</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-start: #cf8ca7; 
+            --bg-end: #baa3cc;   
+            --text-main: #2d121a; 
+            --accent: #ff5271;      
+            --accent-dark: #e63956; 
+            --card-bg: rgba(255, 255, 255, 0.82); 
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body {
+            padding: 40px 16px 40px 16px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+        }
+
+        /* Анимационный Canvas */
+        #animation-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .bg-glow-1 {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: #e65c84;
+            border-radius: 50%;
+            filter: blur(70px);
+            top: -40px;
+            left: -50px;
+            z-index: 0;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .bg-glow-2 {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: #b386cc;
+            border-radius: 50%;
+            filter: blur(60px);
+            bottom: 20px;
+            right: -60px;
+            z-index: 0;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Индикатор шагов (Progress Dots) */
+        .progress-container {
+            display: flex; 
+            visibility: hidden; 
+            gap: 8px;
+            margin-bottom: 24px;
+            z-index: 10;
+            height: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #ffffff;
+            width: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            z-index: 10;
+            display: none; 
+            box-sizing: border-box;
+        }
+
+        .container.active {
+            display: block;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Стили для интерактива с подарком */
+        .gift-box-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .gift-emoji {
+            font-size: 84px;
+            filter: drop-shadow(0 10px 20px rgba(255, 82, 113, 0.5));
+            animation: bounceGift 1.8s infinite ease-in-out;
+            transition: transform 0.2s ease;
+        }
+
+        .gift-emoji:active {
+            transform: scale(0.9);
+        }
+
+        .gift-hint-text {
+            margin-top: 18px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(45, 18, 26, 0.3);
+            animation: pulseHint 1.8s infinite;
+        }
+
+        @keyframes bounceGift {
+            0%, 100% { transform: scale(1) translateY(0) rotate(0); }
+            50% { transform: scale(1.1) translateY(-10px) rotate(4deg); }
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.6; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* Эффект плавного проявления текста после подарка */
+        .revealed-content {
+            opacity: 0;
+            transform: translateY(25px) scale(0.95);
+            filter: blur(10px);
+            transition: opacity 1s cubic-bezier(0.19, 1, 0.22, 1), 
+                        transform 1s cubic-bezier(0.19, 1, 0.22, 1), 
+                        filter 1s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: none;
+        }
+
+        .revealed-content.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+            pointer-events: auto;
+        }
+
+        .icon-header {
+            font-size: 56px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 4px 10px rgba(230, 92, 132, 0.4));
+            animation: float 3s ease-in-out infinite;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(45, 18, 26, 0.25);
+            letter-spacing: -0.3px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            padding: 0 12px;
+            color: #ffffff;
+            text-shadow: 0 1.5px 3px rgba(45, 18, 26, 0.25);
+            text-align: center;
+        }
+
+        .cards-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 18px;
+            padding: 15px 18px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: left;
+            width: 100%;
+            position: relative;
+        }
+
+        .card-icon-wrapper {
+            background: #ffffff;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(45, 18, 26, 0.05);
+            flex-shrink: 0;
+            transition: background 0.25s ease;
+        }
+
+        .card-title {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: #2d121a;
+            flex-grow: 1;
+        }
+
+        .card-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(45, 18, 26, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .card-check::after {
+            content: "✓";
+            font-size: 12px;
+            font-weight: 900;
+            color: #ffffff;
+            display: none;
+        }
+
+        .card.selected {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.4);
+        }
+
+        .card.selected .card-icon-wrapper {
+            background: #ffe6eb;
+        }
+
+        .card.selected .card-check {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .card.selected .card-check::after {
+            display: block;
+        }
+
+        /* Отрегулированные стили для идеальной геометрии ввода даты/времени */
+        .date-time-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+            width: 100%;
+            box-sizing: border-box;
+            align-items: stretch; /* Растягиваем элементы на всю ширину страницы */
+        }
+
+        .picker-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 8px;
+            width: 100%;             
+            box-sizing: border-box;
+        }
+
+        .picker-group label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(45, 18, 26, 0.2);
+            padding-left: 6px;
+        }
+
+        .input-picker {
+            width: 100%;
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 18px;
+            padding: 16px;
+            font-family: inherit;
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 52px; /* Фиксированная высота для стабильности интерфейса */
+        }
+
+        .input-picker:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.2);
+        }
+
+        .input-wishes {
+            width: 100%;
+            height: 110px;
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            padding: 16px;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-main);
+            outline: none;
+            resize: none;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
+            margin-bottom: 24px;
+            transition: all 0.25s ease;
+        }
+
+        .input-wishes:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(255, 82, 113, 0.2);
+        }
+
+        .btn-container {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-next, .btn-back {
+            font-family: inherit;
+            border: none;
+            border-radius: 18px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #ff5271, #ff7894);
+            color: #ffffff;
+            box-shadow: 0 5px 18px rgba(255, 82, 113, 0.4);
+            flex-grow: 2;
+        }
+
+        .btn-next:active {
+            transform: scale(0.98);
+            filter: brightness(0.95);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            width: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-back:active {
+            transform: scale(0.95);
+        }
+
+        /* Стиль открытки Love Is... */
+        .love-is-card {
+            background: #fffef0; 
+            border: 3px solid #ffccd5;
+            border-radius: 24px;
+            padding: 24px 18px;
+            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: 0 auto 24px auto;
+            max-width: 340px;
+            position: relative;
+        }
+
+        .love-is-card::before {
+            content: "✨";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 18px;
+        }
+
+        .love-is-brand {
+            font-family: 'Comfortaa', 'Georgia', cursive, sans-serif;
+            font-size: 26px;
+            color: #ff5271;
+            font-weight: bold;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .love-is-photo-box {
+            width: 100%;
+            height: 190px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: #faf8e8;
+        }
+
+        .love-is-photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+            display: block;
+        }
+
+        .love-is-caption {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #4a212c;
+            line-height: 1.45;
+            margin-top: 14px;
+            margin-bottom: 0;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <canvas id="animation-canvas"></canvas>
+
+    <!-- Индикатор теперь всегда на месте, чтобы сохранить вертикальный баланс элементов -->
+    <div class="progress-container">
+        <div class="dot" id="dot-1"></div>
+        <div class="dot" id="dot-2"></div>
+        <div class="dot" id="dot-3"></div>
+    </div>
+
+    <!-- Шаг 0: Приветствие / Поздравление -->
+    <div class="container active" id="step-0">
+        <!-- Интерактивный кликабельный подарок, скрывающий текст до распаковки -->
+        <div class="gift-box-wrapper" id="unboxing-box" onclick="revealBirthdayMessage()">
+            <div class="gift-emoji">🎁</div>
+            <div class="gift-hint-text">Нажми, чтобы открыть подарок ✨</div>
+        </div>
+
+        <!-- Контент, который красиво проявляется при открытии подарка -->
+        <div class="revealed-content" id="greeting-details">
+            <div class="icon-header">🥳🎂</div>
+            <h1>С днем рождения, Ариночка! 💕</h1>
+            <p>Я очень хочу, чтобы этот день был по-настоящему особенным и прошел именно так, как тебе хочется. <br><br>Давай вместе соберем детали нашего идеального дня! ✨</p>
+
+            <div class="btn-container" style="margin-top: 15px;">
+                <button class="btn-next" onclick="changeStep(1)">Начать квест ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Шаг 1: Выбор места -->
+    <div class="container" id="step-1">
+        <div class="icon-header">✨</div>
+        <h1>Выбор места</h1>
+        <p>Откуда начнем этот день? Выбери вариант, который будет приятнее всего.</p>
+
+        <div class="cards-grid">
+            <div class="card" onclick="selectOption('place', this, 'Ресторан')">
+                <div class="card-icon-wrapper">🍝</div>
+                <div class="card-title">Ресторан</div>
+                <div class="card-check"></div>
+            </div>
+
+            <div class="card" onclick="selectOption('place', this, 'Пикник')">
+                <div class="card-icon-wrapper">🧺</div>
+                <div class="card-title">Пикник</div>
+                <div class="card-check"></div>
+            </div>
+
+            <div class="card" onclick="selectOption('place', this, 'Парк аттракционов')">
+                <div class="card-icon-wrapper">🎡</div>
+                <div class="card-title">Парк аттракционов</div>
+                <div class="card-check"></div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-back" onclick="changeStep(0)">⬅</button>
+            <button class="btn-next" onclick="changeStep(2)">Далее ➔</button>
+        </div>
+    </div>
+
+    <!-- Шаг 2: Дата и время -->
+    <div class="container" id="step-2">
+        <div class="icon-header">📅</div>
+        <h1>Дата и время</h1>
+        <p>Выбери день и то время, когда будет удобно начать, чтобы спокойно собраться.</p>
+
+        <div class="date-time-container">
+            <div class="picker-group">
+                <label for="date-input">Дата:</label>
+                <input type="date" id="date-input" class="input-picker" onchange="updateDateTime()">
+            </div>
+            
+            <div class="picker-group">
+                <label for="time-input">Время:</label>
+                <input type="time" id="time-input" class="input-picker" onchange="updateDateTime()">
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-back" onclick="changeStep(1)">⬅</button>
+            <button class="btn-next" onclick="changeStep(3)">Далее ➔</button>
+        </div>
+    </div>
+
+    <!-- Шаг 3: Детали и пожелания -->
+    <div class="container" id="step-3">
+        <div class="icon-header">💌</div>
+        <h1>Детали и пожелания</h1>
+        <p>Если хочешь что-то добавить (определенное кафе, блюда или пожелания к планам) — напиши тут</p>
+
+        <textarea class="input-wishes" id="wishes-text" placeholder="Например: хочу, чтобы мы наснимали с тобой милых видео..."></textarea>
+
+        <div class="btn-container">
+            <button class="btn-back" onclick="changeStep(2)">⬅</button>
+            <button class="btn-next" onclick="changeStep(4)">Далее ➔</button>
+        </div>
+    </div>
+
+    <!-- Шаг 4: Love Is открытка и завершение -->
+    <div class="container" id="step-4">
+        <div class="love-is-card">
+            <div class="love-is-brand">love is...</div>
+            <div class="love-is-photo-box">
+                <!-- Загруженная в репозиторий сгенерированная картинка -->
+                <img src="love-is-photo.png" alt="Love is..." onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="love-is-placeholder-fallback" style="display:none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #ff7894; text-align: center; padding: 10px;">
+                    <span>Здесь будет наша милая фотка 📸</span>
+                    <span style="font-size: 11px; color: #ffa3b6; font-weight: normal;">Загрузи love-is-photo.png в репозиторий!</span>
+                </div>
+            </div>
+            <p class="love-is-caption">...вместе планировать идеальный день рождения и улыбаться каждой минутке.</p>
+        </div>
+
+        <p style="margin-bottom: 16px;">Все готово! Твои ответы сохранятся, и я сразу увижу их 🥰</p>
+
+        <div class="btn-container">
+            <button class="btn-back" onclick="changeStep(3)">⬅</button>
+            <button class="btn-next" onclick="submitData()">Отправить ответы 💕</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        let choices = {
+            place: "",
+            time: "",
+            wishes: ""
+        };
+
+        let currentActiveStep = 0; // На каком слайде находится пользователь
+        let isGiftOpened = false;  // Флаг распаковки подарка
+
+        // --- КОНФЕТТИ И СЕРДЕЧКИ (Canvas) ---
+        const canvas = document.getElementById('animation-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, type, burst = false) {
+                this.x = x;
+                this.y = y;
+                this.type = type; 
+                this.size = Math.random() * 8 + (type === 'heart' ? 12 : 5);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = burst ? (Math.random() * 9 + 4) : (Math.random() * 2 + 1);
+                
+                this.vx = Math.cos(angle) * speed;
+                this.vy = burst ? (Math.sin(angle) * speed - 2) : (Math.random() * 1.5 + 0.5); 
+                
+                this.gravity = burst ? 0.18 : 0.02;
+                this.opacity = 1;
+                this.fade = burst ? (Math.random() * 0.015 + 0.008) : (Math.random() * 0.005 + 0.002);
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.08;
+                
+                const colors = ['#ff5271', '#ff7894', '#ffccd5', '#ffd166', '#ffffff', '#bc84ee'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.opacity -= this.fade;
+                this.rotation += this.rotationSpeed;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.opacity);
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                if (this.type === 'heart') {
+                    ctx.fillStyle = '#ff5271';
+                    ctx.beginPath();
+                    ctx.moveTo(0, this.size / 4);
+                    ctx.quadraticCurveTo(-this.size / 2, -this.size / 2, -this.size / 2, this.size / 4);
+                    ctx.quadraticCurveTo(-this.size / 2, this.size * 0.9, 0, this.size * 1.2);
+                    ctx.quadraticCurveTo(this.size / 2, this.size * 0.9, this.size / 2, this.size / 4);
+                    ctx.quadraticCurveTo(this.size / 2, -this.size / 2, 0, this.size / 4);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (this.type === 'sparkle') {
+                    ctx.fillStyle = '#ffd166';
+                    ctx.beginPath();
+                    for (let i = 0; i < 4; i++) {
+                        ctx.lineTo(0, -this.size);
+                        ctx.quadraticCurveTo(0, 0, this.size, 0);
+                        ctx.rotate(Math.PI / 2);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                }
+                ctx.restore();
+            }
+        }
+
+        // Взрывная хлопушка
+        function triggerBurst() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < 60; i++) particles.push(new Particle(centerX, centerY, 'confetti', true));
+            for (let i = 0; i < 30; i++) particles.push(new Particle(centerX, centerY, 'heart', true));
+            for (let i = 0; i < 20; i++) particles.push(new Particle(centerX, centerY, 'sparkle', true));
+        }
+
+        // Постоянный легкий спавн частиц во время прохождения квеста
+        function spawnContinuous() {
+            // Лимитируем частицы в зависимости от состояния
+            // На первом слайде (0) лимит повыше, на остальных шагах — до 30 штук для фонового эффекта
+            const maxParticles = (currentActiveStep === 0 || currentActiveStep === 4) ? 150 : 30;
+
+            if (particles.length < maxParticles) {
+                // Плавное падение с меньшей частотой для шагов 1, 2, 3
+                const spawnChance = (currentActiveStep === 0 || currentActiveStep === 4) ? 0.8 : 0.15;
+                if (Math.random() > spawnChance) return;
+
+                const x = Math.random() * canvas.width;
+                const typeRand = Math.random();
+                let type = 'confetti';
+                if (typeRand < 0.4) type = 'heart';
+                else if (typeRand < 0.7) type = 'sparkle';
+                
+                particles.push(new Particle(x, -20, type, false));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            spawnContinuous();
+
+            particles.forEach((p, idx) => {
+                p.update();
+                p.draw();
+                if (p.opacity <= 0 || p.y > canvas.height + 20) {
+                    particles.splice(idx, 1);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Запуск анимационного цикла
+        animate();
+        setTimeout(triggerBurst, 500);
+
+        // Логика интерактивного подарка
+        function revealBirthdayMessage() {
+            if (isGiftOpened) return;
+            isGiftOpened = true;
+
+            // Хэптик на открытие
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+
+            // Массированный взрыв салютов (3 взрыва друг за другом для вау-эффекта)
+            triggerBurst();
+            setTimeout(triggerBurst, 250);
+            setTimeout(triggerBurst, 500);
+
+            // Анимационное скрытие подарка и проявление контента
+            const giftBox = document.getElementById('unboxing-box');
+            const greetingDetails = document.getElementById('greeting-details');
+
+            giftBox.style.transform = 'scale(0.3)';
+            giftBox.style.opacity = '0';
+            
+            setTimeout(() => {
+                giftBox.style.display = 'none';
+                greetingDetails.classList.add('show');
+            }, 500);
+        }
+
+        // --- ЛОГИКА ОПРОСА ---
+
+        function selectOption(type, element, value) {
+            const currentStep = element.closest('.container');
+            currentStep.querySelectorAll('.card').forEach(card => card.classList.remove('selected'));
+            
+            element.classList.add('selected');
+            choices[type] = value;
+
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function updateDateTime() {
+            const dateVal = document.getElementById('date-input').value;
+            const timeVal = document.getElementById('time-input').value;
+            
+            if (dateVal && timeVal) {
+                choices.time = `${dateVal} в ${timeVal}`;
+            } else if (dateVal) {
+                choices.time = dateVal;
+            }
+        }
+
+        function changeStep(toStep) {
+            if (toStep === 2 && !choices.place) {
+                showNotice("Выбери локацию! ✨");
+                return;
+            }
+            if (toStep === 3) {
+                const dateVal = document.getElementById('date-input').value;
+                const timeVal = document.getElementById('time-input').value;
+                if (!dateVal || !timeVal) {
+                    showNotice("Укажи дату и время! 📅");
+                    return;
+                }
+            }
+
+            currentActiveStep = toStep; // Запоминаем текущий шаг
+
+            // Регулируем видимость индикатора без скрытия из макета
+            const progressContainer = document.querySelector('.progress-container');
+            if (toStep === 0 || toStep === 4) {
+                progressContainer.style.visibility = 'hidden';
+            } else {
+                progressContainer.style.visibility = 'visible';
+                document.querySelectorAll('.dot').forEach(el => el.classList.remove('active'));
+                const activeDot = document.getElementById(`dot-${toStep}`);
+                if (activeDot) activeDot.classList.add('active');
+            }
+
+            // Быстро растворяем лишние старые частицы, если ушли со стартового слайда
+            if (toStep !== 0 && toStep !== 4 && particles.length > 30) {
+                particles.forEach((p, idx) => {
+                    if (idx > 25) {
+                        p.fade = Math.random() * 0.05 + 0.03; // Резко ускоряем исчезновение
+                    }
+                });
+            }
+
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${toStep}`).classList.add('active');
+            
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.selectionChanged();
+            }
+
+            if (toStep === 4 || toStep === 0) {
+                triggerBurst();
+            }
+        }
+
+        function showNotice(msg) {
+            if (tg.showAlert) tg.showAlert(msg);
+            else alert(msg);
+        }
+
+        function submitData() {
+            choices.wishes = document.getElementById('wishes-text').value;
+            const stringData = JSON.stringify(choices);
+            
+            if (tg.sendData) {
+                tg.sendData(stringData);
+            } else {
+                alert("Данные: " + stringData);
+            }
+        }
+    </script>
+</body>
+</html>
