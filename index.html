@@ -22,6 +22,7 @@
             --card-bg: rgba(255, 255, 255, 0.82); 
         }
 
+        /* */
         html, body {
             width: 100%;
             min-height: 100vh;
@@ -38,6 +39,21 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start; 
+        }
+
+        /* Красивая обертка для ПК, чтобы на мониторах приложение смотрелось аккуратно */
+        @media (min-width: 480px) {
+            body {
+                max-width: 430px;
+                margin: 40px auto;
+                min-height: calc(100vh - 80px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+                background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+                border-radius: 30px;
+            }
+            html {
+                background: #18151b; /* Приятный глубокий фон для ПК версии */
+            }
         }
 
         /* Анимационный Canvas */
@@ -80,8 +96,8 @@
 
         /* Индикатор шагов (Progress Dots) */
         .progress-container {
-            display: flex; /* Всегда flex для сохранения геометрии и избежания сдвигов */
-            visibility: hidden; /* Скрыт по дефолту на шаге 0, но занимает место */
+            display: flex; 
+            visibility: hidden; /* Скрыт на шаге 0, но держит ровную высоту для контента */
             gap: 8px;
             margin-bottom: 24px;
             z-index: 10;
@@ -114,6 +130,67 @@
         .container.active {
             display: block;
             animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* */
+        /* Стили для интерактива с подарком */
+        .gift-box-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .gift-emoji {
+            font-size: 84px;
+            filter: drop-shadow(0 10px 20px rgba(255, 82, 113, 0.5));
+            animation: bounceGift 1.8s infinite ease-in-out;
+            transition: transform 0.2s ease;
+        }
+
+        .gift-emoji:active {
+            transform: scale(0.9);
+        }
+
+        .gift-hint-text {
+            margin-top: 18px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(45, 18, 26, 0.3);
+            animation: pulseHint 1.8s infinite;
+        }
+
+        @keyframes bounceGift {
+            0%, 100% { transform: scale(1) translateY(0) rotate(0); }
+            50% { transform: scale(1.1) translateY(-10px) rotate(4deg); }
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.6; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* Эффект плавного проявления текста после подарка */
+        .revealed-content {
+            opacity: 0;
+            transform: translateY(25px) scale(0.95);
+            filter: blur(10px);
+            transition: opacity 1s cubic-bezier(0.19, 1, 0.22, 1), 
+                        transform 1s cubic-bezier(0.19, 1, 0.22, 1), 
+                        filter 1s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: none;
+        }
+
+        .revealed-content.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+            pointer-events: auto;
         }
 
         .icon-header {
@@ -231,24 +308,24 @@
             display: block;
         }
 
+        /* */
+        /* Отрегулированные стили для идеальной геометрии ввода даты/времени */
         .date-time-container {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
             margin-bottom: 24px;
             width: 100%;
-            align-items: flex-start; 
-            padding-left: 12px;      
+            box-sizing: border-box;
+            align-items: stretch; /* Растягиваем элементы на всю ширину страницы */
         }
 
         .picker-group {
             display: flex;
             flex-direction: column;
             text-align: left;
-            gap: 6px;
-            width: 85%;             
-            max-width: 360px;       
-            min-width: 240px;       
+            gap: 8px;
+            width: 100%;             
             box-sizing: border-box;
         }
 
@@ -257,15 +334,15 @@
             font-weight: 700;
             color: #ffffff;
             text-shadow: 0 1px 2px rgba(45, 18, 26, 0.2);
-            padding-left: 4px;
+            padding-left: 6px;
         }
 
         .input-picker {
             width: 100%;
             background: var(--card-bg);
             border: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 14px;
+            border-radius: 18px;
+            padding: 16px;
             font-family: inherit;
             font-size: 15.5px;
             font-weight: 600;
@@ -274,7 +351,8 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 6px 18px rgba(45, 18, 26, 0.08);
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 52px; /* Фиксированная высота для стабильности интерфейса */
         }
 
         .input-picker:focus {
@@ -391,31 +469,18 @@
         .love-is-photo-box {
             width: 100%;
             height: 190px;
-            background: #faf8e8;
-            border: 2px dashed #ff829b;
             border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 16px;
             overflow: hidden;
             position: relative;
+            background: #faf8e8;
         }
 
-        .love-is-photo-box::after {
-            content: "❤️";
-            font-size: 48px;
-            opacity: 0.12;
-            position: absolute;
-        }
-
-        .love-is-placeholder-text {
-            font-size: 13.5px;
-            font-weight: 700;
-            color: #ff7894;
-            z-index: 1;
+        .love-is-photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+            display: block;
         }
 
         .love-is-caption {
@@ -423,7 +488,8 @@
             font-weight: 700;
             color: #4a212c;
             line-height: 1.45;
-            margin: 0;
+            margin-top: 14px;
+            margin-bottom: 0;
         }
 
         @keyframes slideUp {
@@ -444,6 +510,7 @@
 
     <canvas id="animation-canvas"></canvas>
 
+    <!-- -->
     <!-- Индикатор теперь всегда на месте, чтобы сохранить вертикальный баланс элементов -->
     <div class="progress-container">
         <div class="dot" id="dot-1"></div>
@@ -453,12 +520,21 @@
 
     <!-- Шаг 0: Приветствие / Поздравление -->
     <div class="container active" id="step-0">
-        <div class="icon-header">🥳🎂</div>
-        <h1>С днем рождения, Ариночка! 💕</h1>
-        <p>Я очень хочу, чтобы этот день был по-настоящему особенным и прошел именно так, как тебе хочется. <br><br>Давай вместе соберем детали нашего идеального дня! ✨</p>
+        <!-- Интерактивный кликабельный подарок, скрывающий текст до распаковки -->
+        <div class="gift-box-wrapper" id="unboxing-box" onclick="revealBirthdayMessage()">
+            <div class="gift-emoji">🎁</div>
+            <div class="gift-hint-text">Нажми, чтобы открыть подарок ✨</div>
+        </div>
 
-        <div class="btn-container" style="margin-top: 15px;">
-            <button class="btn-next" onclick="changeStep(1)">Начать квест ➔</button>
+        <!-- Контент, который красиво проявляется при открытии подарка -->
+        <div class="revealed-content" id="greeting-details">
+            <div class="icon-header">🥳🎂</div>
+            <h1>С днем рождения, Ариночка! 💕</h1>
+            <p>Я очень хочу, чтобы этот день был по-настоящему особенным и прошел именно так, как тебе хочется. <br><br>Давай вместе соберем детали нашего идеального дня! ✨</p>
+
+            <div class="btn-container" style="margin-top: 15px;">
+                <button class="btn-next" onclick="changeStep(1)">Начать квест ➔</button>
+            </div>
         </div>
     </div>
 
@@ -537,8 +613,12 @@
         <div class="love-is-card">
             <div class="love-is-brand">love is...</div>
             <div class="love-is-photo-box">
-                <span class="love-is-placeholder-text">Здесь будет наша милая фотка 📸</span>
-                <span style="font-size: 12px; color: #ffa3b6; font-weight: bold; z-index: 1;">(соберём из исходных кадров)</span>
+                <!-- Загруженная в репозиторий сгенерированная картинка -->
+                <img src="love-is-photo.png" alt="Love is..." onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="love-is-placeholder-fallback" style="display:none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #ff7894; text-align: center; padding: 10px;">
+                    <span>Здесь будет наша милая фотка 📸</span>
+                    <span style="font-size: 11px; color: #ffa3b6; font-weight: normal;">Загрузи love-is-photo.png в репозиторий!</span>
+                </div>
             </div>
             <p class="love-is-caption">...вместе планировать идеальный день рождения и улыбаться каждой минутке.</p>
         </div>
@@ -551,6 +631,7 @@
         </div>
     </div>
 
+    <!-- -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -563,6 +644,7 @@
         };
 
         let currentActiveStep = 0; // На каком слайде находится пользователь
+        let isGiftOpened = false;  // Флаг распаковки подарка
 
         // --- КОНФЕТТИ И СЕРДЕЧКИ (Canvas) ---
         const canvas = document.getElementById('animation-canvas');
@@ -591,7 +673,6 @@
                 
                 this.gravity = burst ? 0.18 : 0.02;
                 this.opacity = 1;
-                // Обычное затухание
                 this.fade = burst ? (Math.random() * 0.015 + 0.008) : (Math.random() * 0.005 + 0.002);
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.08;
@@ -642,7 +723,7 @@
             }
         }
 
-        // Взрывная хлопушка
+        //        // Взрывная хлопушка
         function triggerBurst() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -654,12 +735,13 @@
 
         // Постоянный легкий спавн частиц во время прохождения квеста
         function spawnContinuous() {
+            // Лимитируем частицы в зависимости от состояния
             // На первом слайде (0) лимит повыше, на остальных шагах — до 30 штук для фонового эффекта
-            const maxParticles = currentActiveStep === 0 ? 150 : 30;
+            const maxParticles = (currentActiveStep === 0 || currentActiveStep === 4) ? 150 : 30;
 
             if (particles.length < maxParticles) {
                 // Плавное падение с меньшей частотой для шагов 1, 2, 3
-                const spawnChance = currentActiveStep === 0 ? 0.8 : 0.15;
+                const spawnChance = (currentActiveStep === 0 || currentActiveStep === 4) ? 0.8 : 0.15;
                 if (Math.random() > spawnChance) return;
 
                 const x = Math.random() * canvas.width;
@@ -688,9 +770,37 @@
             requestAnimationFrame(animate);
         }
 
-        // Запуск
+        // Запуск анимационного цикла
         animate();
         setTimeout(triggerBurst, 500);
+
+        //        // Логика интерактивного подарка
+        function revealBirthdayMessage() {
+            if (isGiftOpened) return;
+            isGiftOpened = true;
+
+            // Хэптик на открытие
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+
+            // Массированный взрыв салютов (3 взрыва друг за другом для вау-эффекта)
+            triggerBurst();
+            setTimeout(triggerBurst, 250);
+            setTimeout(triggerBurst, 500);
+
+            // Анимационное скрытие подарка и проявление контента
+            const giftBox = document.getElementById('unboxing-box');
+            const greetingDetails = document.getElementById('greeting-details');
+
+            giftBox.style.transform = 'scale(0.3)';
+            giftBox.style.opacity = '0';
+            
+            setTimeout(() => {
+                giftBox.style.display = 'none';
+                greetingDetails.classList.add('show');
+            }, 500);
+        }
 
         // --- ЛОГИКА ОПРОСА ---
 

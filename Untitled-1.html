@@ -22,6 +22,7 @@
             --card-bg: rgba(255, 255, 255, 0.82); 
         }
 
+        /* */
         html, body {
             width: 100%;
             min-height: 100vh;
@@ -38,6 +39,21 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start; 
+        }
+
+        /* Красивая обертка для ПК, чтобы на мониторах приложение смотрелось аккуратно */
+        @media (min-width: 480px) {
+            body {
+                max-width: 430px;
+                margin: 40px auto;
+                min-height: calc(100vh - 80px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+                background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+                border-radius: 30px;
+            }
+            html {
+                background: #18151b; /* Приятный глубокий фон для ПК версии */
+            }
         }
 
         /* Анимационный Canvas */
@@ -81,7 +97,7 @@
         /* Индикатор шагов (Progress Dots) */
         .progress-container {
             display: flex; 
-            visibility: hidden; 
+            visibility: hidden; /* Скрыт на шаге 0, но держит ровную высоту для контента */
             gap: 8px;
             margin-bottom: 24px;
             z-index: 10;
@@ -116,6 +132,7 @@
             animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* */
         /* Стили для интерактива с подарком */
         .gift-box-wrapper {
             display: flex;
@@ -291,6 +308,7 @@
             display: block;
         }
 
+        /* */
         /* Отрегулированные стили для идеальной геометрии ввода даты/времени */
         .date-time-container {
             display: flex;
@@ -492,6 +510,7 @@
 
     <canvas id="animation-canvas"></canvas>
 
+    <!-- -->
     <!-- Индикатор теперь всегда на месте, чтобы сохранить вертикальный баланс элементов -->
     <div class="progress-container">
         <div class="dot" id="dot-1"></div>
@@ -612,6 +631,7 @@
         </div>
     </div>
 
+    <!-- -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -703,7 +723,7 @@
             }
         }
 
-        // Взрывная хлопушка
+        //        // Взрывная хлопушка
         function triggerBurst() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -754,7 +774,7 @@
         animate();
         setTimeout(triggerBurst, 500);
 
-        // Логика интерактивного подарка
+        //        // Логика интерактивного подарка
         function revealBirthdayMessage() {
             if (isGiftOpened) return;
             isGiftOpened = true;
